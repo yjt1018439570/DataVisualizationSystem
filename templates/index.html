@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>数据可视化</title>
+    <link rel="stylesheet" href="../static/css/index.css" />
+    <script src="../static/js/echarts.js"></script>
+    <script src="../static/js/china.js"></script>
+  </head>
+
+<body>
+<header>
+    <h1>Data Visualization System</h1>
+    <div class="showTime">
+        <script>
+        var t = null;
+        t = setTimeout(time, 1000); //開始运行
+        function time() {
+          clearTimeout(t); //清除定时器
+          dt = new Date();
+          var y = dt.getFullYear();
+          var mt = dt.getMonth() + 1;
+          var day = dt.getDate();
+          var h = dt.getHours(); //获取时
+          var m = dt.getMinutes(); //获取分
+          var s = dt.getSeconds(); //获取秒
+          document.querySelector(".showTime").innerHTML =
+            "当前时间：" +
+            y +
+            "年" +
+            mt +
+            "月" +
+            day +
+            "-" +
+            h +
+            "时" +
+            m +
+            "分" +
+            s +
+            "秒";
+          t = setTimeout(time, 1000); //设定定时器，循环运行
+        }
+      </script>
+    </div>
+</header>
+<section class = "mainbox">
+    <!-------------------------left--------------------------------->
+    <div class="column">
+        <div class="panel bar">
+            <div class="chartA" style="width: 98%;height:48vh;"></div>
+            <div class= "panel-footer"></div>
+
+        </div>
+
+        <div class="panel line">
+            <div class="chartC" style="width: 98%;height:48vh;"></div>
+            <div class="panel-footer"></div>
+        </div>
+
+
+
+    </div>
+<!-------------------------middle--------------------------------->
+    <div class="column">
+        <div class="no">
+            <div class="no-hd">
+                <ul>
+                    <li>4834</li>
+                    <li>12,556.33</li>
+                </ul>
+            </div>
+            <div class="no-bd">
+                <ul>
+                    <li>统计全国上市公司数量</li>
+                    <li>中国人均国内生产总值(USD)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="map"style="width: 90%;height:80vh;">
+
+        </div>
+    </div>
+<!-------------------------right--------------------------------->
+    <div class="column">
+        <div class="panel bar">
+            <input type="text" id="scode"
+                   style="color: white;
+                   background-color: #15172b;
+                   border-radius: 15px;
+                   box-sizing: border-box;
+                   height: 0.7rem;
+                   padding: 10px;
+                   width: 320px;"
+                   placeholder="Input a valid share code to search: ">
+
+            <input type="submit" onclick="redirect()" value="Search" style="  background-color: #08d;
+  border-radius: 12px;
+  border: 0;
+  box-sizing: border-box;
+  color: #eee;
+  cursor: pointer;
+  font-size: 12px;
+  height: 0.5rem;
+  margin-top: 20px;
+
+  text-align: center;
+  width: 15%;">
+
+    <script>function redirect() {
+        var code = document.getElementById('scode').value
+        window.location = code;
+        }</script>
+
+            <div class="info"
+                 style="width: 98%;
+                        height:10vh;
+                        position: relative;
+                        flex: 1;
+                        height: 0.1rem;
+                        line-height: 0.5rem;
+                        font-size: 0.375rem;
+                        color: #ffeb7b;
+                        padding: 0.1rem 0;
+                        font-family: electronicFont;">
+
+            </div>
+
+            <div class="panel-footer"></div>
+        </div>
+
+        <div class="panel line">
+            <div class="chartD" style="width: 98%;height:48vh;"></div>
+            <div class="panel-footer"></div>
+        </div>
+
+    </div>
+</section>
+<!-----------------各行业市值分布-------------------->
+<script type="text/javascript">
+    {#初始化 echarts 对象#}
+    var mychartA = echarts.init(document.querySelector('.chartA'));
+
+    {#首先，声明两个 javascript 的数组#}
+    var series_data = [];
+    var xAxis_data = [];
+    {#使用循环，依次将数据库需要展示的数据添加到刚才声明的数组中#}
+    {% for i in totalIndustry %}
+        series_data.push({{ i.total|floatformat:2}})
+        xAxis_data.push("{{ i.industry}}")
+    {% endfor %}
+    {#可视化展示选项#}
+    var option = {
+          color: ["#1f96cf"],
+        title: {
+            text: '各行业市值分布',
+            textStyle: {
+                color: "rgba(255, 255, 255, 1)"
+        },
+            },
+       tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: xAxis_data,
+      axisTick: {
+        alignWithLabel: true
+      }
+    }
+  ],
+  yAxis: [
+      {
+        type: "value",
+        // 修改刻度标签 相关样式
+        axisLabel: {
+          color: "rgba(255,255,255,.6) ",
+          fontSize: 12
+        },
+        // y轴的线条改为了 2像素
+        axisLine: {
+          lineStyle: {
+            color: "rgba(255,255,255,.1)",
+            width: 2
+          }
+        },
+        // y轴分割线的颜色
+        splitLine: {
+          lineStyle: {
+            color: "rgba(255,255,255,.1)"
+          }
+        }
+      }
+  ],
+  series: [
+    {
+      name: 'Value(亿)',
+      type: 'bar',
+      barWidth: '60%',
+      data: series_data,
+              itemStyle: {
+          // 修改柱子圆角
+          barBorderRadius: 5
+        }
+    }
+  ]
+    };
+    {#将 echarts对象与展示选项结合起来#}
+    mychartA.setOption(option);
+    window.addEventListener("resize",function () {
+        mychartA.resize()
+    })
+</script>
+<!-------------------------上市公司市值排名------------------------------->
+<script type="text/javascript">
+    {#初始化 echarts 对象#}
+    var mychartC = echarts.init(document.querySelector('.chartC'));
+    {#首先，声明两个 javascript 的数组#}
+    var series_data2 = [];
+    var xAxis_data2 = [];
+    {#使用循环，依次将数据库需要展示的数据添加到刚才声明的数组中#}
+    {% for i in topTen %}
+        series_data2.push({{ i.value|floatformat:2}})
+        xAxis_data2.push("{{ i.name}}")
+    {% endfor %}
+    {#可视化展示选项#}
+    var option = {
+          color: ["#00cecf"],
+        title: {
+            text: '上市公司市值排名',
+            textStyle: {
+                color: "rgba(255, 255, 255, 1)"
+        },
+            },
+       tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: xAxis_data2,
+      axisTick: {
+        alignWithLabel: true
+      }
+    }
+  ],
+  yAxis: [
+      {
+        type: "value",
+        // 修改刻度标签 相关样式
+        axisLabel: {
+          color: "rgba(255,255,255,.6) ",
+          fontSize: 12
+        },
+        // y轴的线条改为了 2像素
+        axisLine: {
+          lineStyle: {
+            color: "rgba(255,255,255,.1)",
+            width: 2
+          }
+        },
+        // y轴分割线的颜色
+        splitLine: {
+          lineStyle: {
+            color: "rgba(255,255,255,.1)"
+          }
+        }
+      }
+  ],
+  series: [
+    {
+      name: 'Value(亿)',
+      type: 'bar',
+      barWidth: '60%',
+      data: series_data2,
+                itemStyle: {
+          // 修改柱子圆角
+          barBorderRadius: 5
+        }
+    }
+  ]
+    };
+    {#将 echarts对象与展示选项结合起来#}
+    mychartC.setOption(option);
+    window.addEventListener("resize",function () {
+        mychartC.resize()
+    })
+</script>
+<!-----------------------map--------------------------------->
+<script>
+var myChartB = echarts.init(document.querySelector(".map"));
+  var geoCoordMap = {
+    上海: [121.4648, 31.2891],
+    北京: [116.4551, 40.2539],
+    天津: [117.4219, 39.4189],
+    深圳: [114.5435, 22.5439],
+    重庆: [107.7539, 30.1904],
+    吉林:[127,43],
+    江苏:[119.8,33],
+    辽宁:[123,41],
+    广东:[113.5,23.5],
+    安徽:[117.5,32],
+    四川:[103,30],
+    浙江:[120,29],
+    湖南:[112.5,27.5],
+    河北:[115,38],
+    新疆:[84,40],
+    山东:[118,36],
+    河南:[113.2,33.5],
+    山西:[112,37],
+    江西:[116,27.5],
+    青海:[95,35],
+    湖北:[113,31.3],
+    内蒙:[112.5,42],
+    海南:[110,19],
+    陕西:[108,34],
+    福建:[118.5,26.5],
+    广西:[109,23.5],
+    云南:[101,25],
+    贵州:[107,27],
+    甘肃:[104,35],
+    宁夏:[106,37],
+    黑龙江:[129,47],
+    西藏:[89,31.5],
+    None:[80,15]
+    };
+
+  var XAData = [];
+    {% for i in byArea %}
+        XAData.push([{ name: "" },{ name: "{{i.area}}", value:"{{ i.count }}" }])
+    {% endfor %}
+
+  var planePath =
+    "path://M1705.06,1318.313v-89.254l-319.9-221.799l0.073-208.063c0.521-84.662-26.629-121.796-63.961-121.491c-37.332-0.305-64.482,36.829-63.961,121.491l0.073,208.063l-319.9,221.799v89.254l330.343-157.288l12.238,241.308l-134.449,92.931l0.531,42.034l175.125-42.917l175.125,42.917l0.531-42.034l-134.449-92.931l12.238-241.308L1705.06,1318.313z";
+  //var planePath = 'arrow';
+  var convertData = function(data) {
+    var res = [];
+    for (var i = 0; i < data.length; i++) {
+      var dataItem = data[i];
+
+      var fromCoord = geoCoordMap[dataItem[0].name];
+      var toCoord = geoCoordMap[dataItem[1].name];
+      if (fromCoord && toCoord) {
+        res.push({
+          fromName: dataItem[0].name,
+          toName: dataItem[1].name,
+          coords: [fromCoord, toCoord],
+          value: dataItem[1].value
+        });
+      }
+    }
+    return res;
+  };
+
+
+  var series = [];
+  [
+    ["",XAData],
+  ].forEach(function(item, i) {
+    series.push(
+      {
+        type: "effectScatter",
+        coordinateSystem: "geo",
+        zlevel: 2,
+        rippleEffect: {
+          brushType: "stroke"
+        },
+        label: {
+          normal: {
+            show: true,
+            position: "right",
+            formatter: "{b}"
+          }
+        },
+        symbolSize: function(val) {
+          return val[2] / 25;
+        },
+        itemStyle: {
+          normal: {
+            color: "#a6c84c",
+          },
+          emphasis: {
+            areaColor: "#2B91B7"
+          }
+        },
+        data: item[1].map(function(dataItem) {
+          return {
+            name: dataItem[1].name,
+            value: geoCoordMap[dataItem[1].name].concat([dataItem[1].value])
+          };
+        })
+      }
+    );
+  });
+  var option = {
+      title:{
+          text: "各地区上市公司分布",
+          x: 'center',
+          y:'bottom',
+          textStyle: {
+                color: "rgba(255, 255, 255, 1)"
+        },
+      },
+    tooltip: {
+      trigger: "item",
+      formatter: function(params, ticket, callback) {
+        if (params.seriesType == "effectScatter") {
+          return params.data.name + "   "+" 上市公司数量: " + params.data.value[2];
+        } else if (params.seriesType == "lines") {
+          return (
+            params.data.fromName +
+            ">" +
+            params.data.toName +
+            "<br />" +
+            params.data.value
+          );
+        } else {
+          return params.name;
+        }
+      }
+    },
+
+    geo: {
+      map: "china",
+      label: {
+        emphasis: {
+          show: true,
+          color: "#fff"
+        }
+      },
+
+      zoom:1.2,
+      roam: true,
+      itemStyle: {
+        normal: {
+          // 地图省份的背景颜色
+          areaColor: "rgba(20, 41, 87,0.6)",
+          borderColor: "#195BB9",
+          borderWidth: 1
+        },
+        emphasis: {
+          areaColor: "#2B91B7"
+        }
+      }
+    },
+    series: series
+  };
+  myChartB.setOption(option);
+  // 监听浏览器缩放，图表对象调用缩放resize函数
+  window.addEventListener("resize", function() {
+    myChartB.resize();
+  });
+</script>
+<!-------------------------k line--------------------------->
+<script>
+    var myChartD = echarts.init(document.querySelector(".chartD"));
+    var date=[]
+    var stockData=[]
+    var stockinfo=[]
+    {% for i in id %}
+        date.push("{{ i.date }}")
+        stockData.push([{{ i.openingPrice }},{{ i.closingPrice }},{{ i.lowestPrice }},{{ i.highestPrice }}])
+    {% endfor %}
+    {% for i in info %}
+       stockinfo.push("{{ i.shareCode }}")
+        stockinfo.push(("{{ i.name }}"))
+
+    {% endfor %}
+
+    var option = {
+title:{
+    text:stockinfo[0]+" "+stockinfo[1]+" -- K线图",
+                textStyle: {
+                color: "rgba(255, 255, 255, 1)"
+        },
+},
+  xAxis: {
+    data: date
+  },
+  yAxis: {
+    scale: true,
+      splitData:{
+        show:true
+      }
+  },
+   tooltip:{
+    trigger: 'axis',
+    axisPointer:{
+        type:'cross',
+    }
+   },
+
+  dataZoom:[
+   {
+    show:true,
+       type:'slider',
+       start: 90,
+       end:100
+   }
+  ],
+  series: [
+    {
+      type: 'candlestick',
+      data: stockData
+
+    }
+  ]
+};
+
+
+    myChartD.setOption(option);
+  // 监听浏览器缩放，图表对象调用缩放resize函数
+  window.addEventListener("resize", function() {
+    myChartD.resize();
+  });
+</script>
+<!---------------------------info------------------------------->
+<script>
+var stockinfo=[]
+    {% for i in info %}
+       stockinfo.push("{{ i.shareCode }}")
+        stockinfo.push("{{ i.name }}")
+        stockinfo.push("{{ i.area }}")
+        stockinfo.push("{{ i.industry }}")
+        stockinfo.push("{{ i.market }}")
+        stockinfo.push("{{ i.listDate }}")
+        stockinfo.push("{{ i.value }}")
+    {% endfor %}
+    var link= "http://quotes.money.163.com/trade/lsjysj_"+ stockinfo[0]+".html"
+    document.querySelector(".info").innerHTML=
+
+            "<li>ShareCode: "+stockinfo[0]+"</li>" +
+            "<li>Name: "+stockinfo[1]+"</li>"+
+            "<li>Area: "+stockinfo[2]+"</li>"+
+            "<li>Industry: "+stockinfo[3]+"</li>"+
+            "<li>Market: "+stockinfo[4]+"</li>"+
+            "<li>List Date: "+stockinfo[5]+"</li>"+
+            "<li>Value: "+ stockinfo[6]+ "亿" + "</li>"+
+            "<li><a href="
+        + "\""
+        + link
+        + "\" style='color: yellow'>Click here to go to company page"
+        + "</a></li>"
+
+</script>
+<!-------------------------------------------------------------->
+<script src="../static/js/flexible.js"></script>
+<script src="https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
+</body>
+</html>
